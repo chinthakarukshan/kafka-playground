@@ -31,8 +31,7 @@ public class ProducerDemoWithCallback {
         KafkaProducer<String, String> producer = new KafkaProducer<>(producerProperties);
 
 
-        // Testing sticky partitioner scenario. In this scenario the producer send the data as a batch to a single
-        // partition because the data produced is submitted to the producer within a shorter time window
+        // Reduced batch size will tell kafka producer to send the batches to different partitions available
         for (int count = 0; count < 600; count++) {
             //Create a Producer Record
 
