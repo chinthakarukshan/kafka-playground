@@ -24,6 +24,8 @@ public class ProducerDemoWithCallback {
         producerProperties.setProperty("key.serializer", StringSerializer.class.getName());
         producerProperties.setProperty("value.serializer", StringSerializer.class.getName());
 
+        producerProperties.setProperty("batch.size", "400");
+
 
         //Create the producer
         KafkaProducer<String, String> producer = new KafkaProducer<>(producerProperties);
@@ -31,7 +33,7 @@ public class ProducerDemoWithCallback {
 
         // Testing sticky partitioner scenario. In this scenario the producer send the data as a batch to a single
         // partition because the data produced is submitted to the producer within a shorter time window
-        for (int count = 0; count < 10; count++) {
+        for (int count = 0; count < 600; count++) {
             //Create a Producer Record
 
             ProducerRecord<String, String> producerRecord = new ProducerRecord<>("demo_java_new", "hello world" + count);
@@ -51,6 +53,14 @@ public class ProducerDemoWithCallback {
                     }
                 }
             });
+
+            if (count  % 30 == 0) {
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
         }
 
         producer.flush();
