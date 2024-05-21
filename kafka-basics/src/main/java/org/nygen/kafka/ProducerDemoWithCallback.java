@@ -28,25 +28,30 @@ public class ProducerDemoWithCallback {
         //Create the producer
         KafkaProducer<String, String> producer = new KafkaProducer<>(producerProperties);
 
-        //Create a Producer Record
 
-        ProducerRecord<String, String> producerRecord = new ProducerRecord<>("demo_java_new", "hello world");
+        // Testing sticky partitioner scenario. In this scenario the producer send the data as a batch to a single
+        // partition because the data produced is submitted to the producer within a shorter time window
+        for (int count = 0; count < 10; count++) {
+            //Create a Producer Record
 
-        //Send Data
-        producer.send(producerRecord, new Callback() {
-            @Override
-            public void onCompletion(RecordMetadata recordMetadata, Exception e) {
-                if (e == null) {
-                    log.info("Successfully Sent the message. \n " +
-                            "Topic : " + recordMetadata.topic() + "\n" +
-                            "Partition : " + recordMetadata.partition() + "\n" +
-                            "Offset : " + recordMetadata.offset() + "\n" +
-                            "Timestamp : " + recordMetadata.timestamp() + "\n");
-                } else {
-                    log.error("Exception occurred while sending the message", e);
+            ProducerRecord<String, String> producerRecord = new ProducerRecord<>("demo_java_new", "hello world" + count);
+
+            //Send Data
+            producer.send(producerRecord, new Callback() {
+                @Override
+                public void onCompletion(RecordMetadata recordMetadata, Exception e) {
+                    if (e == null) {
+                        log.info("Successfully Sent the message. \n " +
+                                "Topic : " + recordMetadata.topic() + "\n" +
+                                "Partition : " + recordMetadata.partition() + "\n" +
+                                "Offset : " + recordMetadata.offset() + "\n" +
+                                "Timestamp : " + recordMetadata.timestamp() + "\n");
+                    } else {
+                        log.error("Exception occurred while sending the message", e);
+                    }
                 }
-            }
-        });
+            });
+        }
 
         producer.flush();
         producer.close();
